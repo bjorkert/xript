@@ -1,0 +1,1 @@
+args=-boot order=c -drive file=/root/lan01.cow -machine type=pc,accel=kvm -vnc :1 -cpu host -m 3G
