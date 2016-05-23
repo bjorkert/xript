@@ -8,10 +8,12 @@ PIDFile=/run/qemu_%i.pid
 
 EnvironmentFile=/etc/conf.d/qemu/%i
 
-ExecStartPre=/usr/bin/ip tuntap add tap_%i mode tap user root&&/usr/bin/ip link set tap_%i up&&ip link set tap_%i master br0
-ExecStart=/usr/bin/qemu-system-x86_64 -name %i -daemonize -pidfile /run/qemu_%i.pid -monitor unix:/tmp/%i.sock,server,nowait -net nic,model=virtio -net tap,ifname=tap_%i,script=no,$
+ExecStartPre=/usr/bin/ip tuntap add tap_%i mode tap user root
+ExecStartPre=/usr/bin/ip link set tap_%i up
+ExecStartPre=/usr/bin/ip link set tap_%i master br0
+ExecStart=/usr/bin/qemu-system-x86_64 -name %i -daemonize -pidfile /run/qemu_%i.pid -monitor unix:/tmp/%i.sock,server,nowait -net nic,model=virtio -net tap,ifname=tap_%i,script=no,downscript=no $args
 
-ExecStop=/bin/sh -c '/usr/bin/echo system_powerdown | /usr/bin/socat - UNIX-CONNECT:/tmp/%i.sock; while ps ax | grep "/usr/bin/qemu-system-x86_64 -name %i" | grep -vq grep; do slee$
+ExecStop=/bin/sh -c '/usr/bin/echo system_powerdown | /usr/bin/socat - UNIX-CONNECT:/tmp/%i.sock; while ps ax | grep "/usr/bin/qemu-system-x86_64 -name %i" | grep -vq grep; do sleep 1; done'
 TimeoutStopSec=30
 ExecStopPost=/usr/bin/ip link delete tap_%i
 
